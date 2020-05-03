@@ -14,27 +14,25 @@ class DateDial(NamedTuple):
         '''Turn the dial forwards `n` clicks.'''
         return DateDial((self.day + n) % 7, (self.date - 1 + n) % 31 + 1)
 
-    # @singledispatchmethod
-    # def __sub__(self, other):
-    #     raise NotImplementedError(f'__sub__ not implemented for type(other) {type(other)}')
-
-    # @__sub__.register
-    #@singledispatchmethod
+    @singledispatchmethod
     def __sub__(self, other):
-        '''Calculate how many 'clicks' to get from DateDial `other` to self'''
-        day_delta = (self.day - other.day) % 7
-        date_delta = (self.date - other.date) % 31
+        raise NotImplementedError(f'__sub__ not implemented for type(other) {type(other)}')
 
-        (n1, n2) = (7, 31)
-        (m1, m2) = bezouts_identity(n1, n2)     # 9, -2
-
-        # ((day_delta * -62) + (date_delta * 63)) modulo 217
-        return (day_delta * m2 * n2 + date_delta * m1 * n1) % (n1 * n2)
+    @__sub__.register
+    def __sub__integer(self, n: int):
+        return self + -n
 
     # @__sub__.register
-    # def _(self, n: int) -> DateDial:
-    #     '''Turn the dial backwards `n` clicks.'''
-    #     return self + -n
+    # def __sub__(self, other):
+    #     '''Calculate how many 'clicks' to get from DateDial `other` to self'''
+    #     day_delta = (self.day - other.day) % 7
+    #     date_delta = (self.date - other.date) % 31
+
+    #     (n1, n2) = (7, 31)
+    #     (m1, m2) = bezouts_identity(n1, n2)     # 9, -2
+
+    #     # ((day_delta * -62) + (date_delta * 63)) modulo 217
+    #     return (day_delta * m2 * n2 + date_delta * m1 * n1) % (n1 * n2)
 
     def __str__(self) -> str:
         days = ['Sunday', 'Monday', 'Tuesday', 'Thursday', 'Friday', 'Saturday']
@@ -43,6 +41,19 @@ class DateDial(NamedTuple):
     @classmethod
     def fromdate(cls, d: datetime.date) -> DateDial:
         return cls(d.isoweekday() % 7, d.day)
+
+
+@DateDial.__sub__.register
+def clicks_from(self, other: DateDial):
+    '''Calculate how many 'clicks' to get from DateDial `other` to self'''
+    day_delta = (self.day - other.day) % 7
+    date_delta = (self.date - other.date) % 31
+
+    (n1, n2) = (7, 31)
+    (m1, m2) = bezouts_identity(n1, n2)     # 9, -2
+
+    # ((day_delta * -62) + (date_delta * 63)) modulo 217
+    return (day_delta * m2 * n2 + date_delta * m1 * n1) % (n1 * n2)
 
 
 def bezouts_identity(n1, n2):
