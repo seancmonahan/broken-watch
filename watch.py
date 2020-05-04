@@ -22,20 +22,10 @@ class DateDial(NamedTuple):
     def __sub__integer(self, n: int):
         return self + -n
 
-    # @__sub__.register
-    # def __sub__(self, other):
-    #     '''Calculate how many 'clicks' to get from DateDial `other` to self'''
-    #     day_delta = (self.day - other.day) % 7
-    #     date_delta = (self.date - other.date) % 31
-
-    #     (n1, n2) = (7, 31)
-    #     (m1, m2) = bezouts_identity(n1, n2)     # 9, -2
-
-    #     # ((day_delta * -62) + (date_delta * 63)) modulo 217
-    #     return (day_delta * m2 * n2 + date_delta * m1 * n1) % (n1 * n2)
-
     def __str__(self) -> str:
-        days = ['Sunday', 'Monday', 'Tuesday', 'Thursday', 'Friday', 'Saturday']
+        days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+        days = [day[:3].upper() for day in days]  # Trim to three uppercase letters
+        print(days)
         return f'{days[self.day]}, {self.date}'
 
     @classmethod
